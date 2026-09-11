@@ -32,7 +32,7 @@ public class OtpService : IOtpService
         otpRecord.IsUsed = true;
         await _dbContext.SaveChangesAsync(ct);
 
-        return Result.Success("Otp verified successfully.");
+        return Result.Success(message: "Otp verified successfully.");
     }
 
     public async Task<Result<string>> GenerateAndStoreOtpAsync(string userId, CancellationToken cancellationToken)
@@ -69,6 +69,6 @@ public class OtpService : IOtpService
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         // Return plain OTP code to be sent via email
-        return Result.Success(otpCode);
+        return Result.Success<string>(data: otpCode);
     }
 }

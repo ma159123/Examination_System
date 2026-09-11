@@ -34,7 +34,7 @@ namespace Application.CQRS.Features.Auth.Commands.ForgotPassword
             var resetToken = await _tokenGenerator.GenerateAndSaveResetTokenAsync(user.Id, cancellationToken);
             await _emailService.SendEmailTokenAsync(user.Email, resetToken, cancellationToken);
 
-            return Result.Success("Reset token sent successfully.");
+            return Result.Success<string>("Reset token sent successfully.");
         }
     }
 }

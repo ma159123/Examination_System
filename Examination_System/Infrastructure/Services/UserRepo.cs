@@ -74,7 +74,7 @@ namespace Infrastructure.InterfacesImpl
                 return Result.Failure(new Error("Auth.ResetFailed", errors, 400));
             }
 
-            return Result.Success("Password reset successfully.");
+            return Result.Success(message: "Password reset successfully.");
         }
 
         public Task<AppUser?> FindByIdAsync(string userId)
@@ -114,7 +114,7 @@ namespace Infrastructure.InterfacesImpl
                 return Result.Failure(new Error("Auth.ActivationFailed", "Failed to update user activation status.", 500));
             }
 
-            return Result.Success("User activated successfully.");
+            return Result.Success(message: "User activated successfully.");
         }
 
         public Task<bool> isEmailExistAsync(string email)

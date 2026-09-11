@@ -8,7 +8,7 @@ namespace Application.CQRS.Features.Auth.Commands.Register
         {
             RuleFor(x => x.FullName)
                 .NotEmpty()
-                .MinimumLength(3);
+                .MinimumLength(2).MaximumLength(100);
 
             RuleFor(x => x.Email)
                 .NotEmpty()

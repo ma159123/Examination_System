@@ -3,5 +3,5 @@ using MediatR;
 
 namespace Application.CQRS.Features.UserFeature.Commands.CreateUser
 {
-    public record AddUserCommand(string Email, string Password, string FullName) : IRequest<Result<string>>;
+    public record AddUserCommand(string Email, string Password, string FullName, string Role) : IRequest<Result<string>>;
 }

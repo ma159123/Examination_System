@@ -6,11 +6,13 @@ using Application.CQRS.Features.Auth.Commands.ResendOTP;
 using Application.CQRS.Features.Auth.Commands.VerifyOTP;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [EnableRateLimiting("AuthRateLimit")]
     public class AuthController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -26,7 +28,7 @@ namespace API.Controllers
             {
                 return BadRequest(result.Error);
             }
-            return Ok(result.Value);
+            return Created(string.Empty, result.Value);
         }
         [HttpPost("login")]
         public async Task<IActionResult> Login(UserLoginCommand command)

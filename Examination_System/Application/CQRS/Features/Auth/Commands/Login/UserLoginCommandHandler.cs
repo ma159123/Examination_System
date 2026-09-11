@@ -52,11 +52,11 @@ namespace Application.CQRS.Features.Auth.Commands.Login
 
             // 4. Generate Tokens
             var roles = await _userManager.GetRolesAsync(user);
-            var (accessToken, refreshToken) = _tokenGenerator.GenerateTokens(user, roles);
+            var (accessToken, accessTokenExpiry, refreshToken, refreshTokenExpiry) = await _tokenGenerator.GenerateAndSaveTokensAsync(user, roles);
 
             // TODO: Save RefreshToken in DB/Redis for rotation support
 
-            var response = new LoginResponse(accessToken, refreshToken);
+            var response = new LoginResponse(user.Id, roles.FirstOrDefault(), accessToken, accessTokenExpiry, refreshToken, refreshTokenExpiry);
             return Result.Success(response);
         }
     }

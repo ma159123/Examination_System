@@ -49,21 +49,25 @@ public sealed class ValidationBehaviour<TRequest, TResponse>
     }
     private TResponse CreateFailureResult(Error error)
     {
-        // 1. Check if TResponse is generic (e.g., Result<RegisterResponse>)
+        // 1. Check if TResponse is generic (e.g., Result<LoginResponse>)
         if (typeof(TResponse).IsGenericType)
         {
             var valueType = typeof(TResponse).GetGenericArguments()[0];
 
-            // Calling Result.Failure<TValue>(Error error) via Reflection
+            // البحث عن دالة Failure الجينيريك التي تأخذ معاملين (Error, string?)
             var failureMethod = typeof(Result)
                 .GetMethods()
-                .First(m => m.Name == nameof(Result.Failure) && m.IsGenericMethod)
-                .MakeGenericMethod(valueType);
+                .First(m => m.Name == nameof(Result.Failure)
+                            && m.IsGenericMethod
+                            && m.GetParameters().Length == 2);
 
-            return (TResponse)failureMethod.Invoke(null, new object[] { error })!;
+            var genericMethod = failureMethod.MakeGenericMethod(valueType);
+
+            // تمرير المعاملين: الأول Error والثاني message (null)
+            return (TResponse)genericMethod.Invoke(null, new object?[] { error, null })!;
         }
 
         // 2. If TResponse is non-generic Result
-        return (TResponse)Result.Failure(error);
+        return (TResponse)(object)Result.Failure(error);
     }
 }

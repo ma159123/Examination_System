@@ -38,7 +38,7 @@ namespace Application.CQRS.Features.Auth.Commands.VerifyOTP
                 return Result.Failure(new Error("Activation Failed", "Failed to activate the user account."));
 
             }
-            return Result.Success("User activated successfully.");
+            return Result.Success(message: "User activated successfully.");
 
         }
     }

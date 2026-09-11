@@ -12,7 +12,7 @@ namespace Infrastructure.Data
 
         public DbSet<OtpRecord> OtpRecords { get; set; }
         public DbSet<ResetTokenRecord> ResetTokenRecords { get; set; }
-
+        public DbSet<RefreshTokenRecord> RefreshTokenRecords { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

@@ -22,11 +22,15 @@ public class TokenGenerator : ITokenGenerator
         _dbContext = dbContext;
     }
 
-    public (string accessToken, string refreshToken) GenerateTokens(AppUser user, IList<string> roles)
+    public async Task<(string accessToken, DateTime accessTokenExpiry, string refreshToken, DateTime refreshTokenExpiry)>
+          GenerateAndSaveTokensAsync(AppUser user, IList<string> roles, CancellationToken cancellationToken = default)
     {
-        // 1. Generate JWT Access Token (15 Min Expiry)
+        // 1. Generate Access Token
         var secretKey = _config["JwtSettings:Secret"]
             ?? throw new InvalidOperationException("JWT Secret is not configured.");
+
+        var accessTokenMinutes = double.TryParse(_config["JwtSettings:AccessTokenExpirationMinutes"], out var accMin) ? accMin : 15;
+        var refreshTokenDays = double.TryParse(_config["JwtSettings:RefreshTokenExpirationDays"], out var refDays) ? refDays : 7;
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -39,16 +43,16 @@ public class TokenGenerator : ITokenGenerator
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
-        // Add User Roles to Token Claims
         foreach (var role in roles)
         {
             claims.Add(new Claim(ClaimTypes.Role, role));
         }
 
+        var accessTokenExpiry = DateTime.UtcNow.AddMinutes(accessTokenMinutes);
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.AddMinutes(15), // 15 Min Expiry
+            Expires = accessTokenExpiry,
             SigningCredentials = credentials,
             Issuer = _config["JwtSettings:Issuer"],
             Audience = _config["JwtSettings:Audience"]
@@ -58,19 +62,66 @@ public class TokenGenerator : ITokenGenerator
         var token = tokenHandler.CreateToken(tokenDescriptor);
         var accessToken = tokenHandler.WriteToken(token);
 
-        // 2. Generate Cryptographically Secure Refresh Token
-        var refreshToken = GenerateRefreshToken();
+        // 2. Generate Refresh Token
+        var (plainRefreshToken, refreshTokenExpiry) = GenerateRawRefreshToken(refreshTokenDays);
 
-        return (accessToken, refreshToken);
+        // 3. Save Hashed Refresh Token in DB
+        var hashedRefreshToken = HashToken(plainRefreshToken);
+
+        var refreshTokenRecord = new RefreshTokenRecord
+        {
+            UserId = user.Id,
+            HashedToken = hashedRefreshToken,
+            ExpiresAt = refreshTokenExpiry,
+            IsRevoked = false,
+            IsUsed = false,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _dbContext.RefreshTokenRecords.Add(refreshTokenRecord);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        // Return plain token to client, saved hashed version in DB
+        return (accessToken, accessTokenExpiry, plainRefreshToken, refreshTokenExpiry);
     }
 
-    private static string GenerateRefreshToken()
+    public async Task<bool> ValidateRefreshTokenAsync(string userId, string refreshToken, CancellationToken cancellationToken = default)
+    {
+        var hashedToken = HashToken(refreshToken);
+
+        var tokenRecord = await _dbContext.RefreshTokenRecords
+            .AsNoTracking()
+            .FirstOrDefaultAsync(t => t.UserId == userId && t.HashedToken == hashedToken, cancellationToken);
+
+        if (tokenRecord == null) return false;
+        if (tokenRecord.IsRevoked || tokenRecord.IsUsed) return false;
+        if (tokenRecord.ExpiresAt < DateTime.UtcNow) return false;
+
+        return true;
+    }
+
+    public async Task RevokeRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken = default)
+    {
+        var hashedToken = HashToken(refreshToken);
+
+        var tokenRecord = await _dbContext.RefreshTokenRecords
+            .FirstOrDefaultAsync(t => t.HashedToken == hashedToken, cancellationToken);
+
+        if (tokenRecord != null)
+        {
+            tokenRecord.IsRevoked = true;
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
+    }
+
+    private static (string refreshToken, DateTime expiry) GenerateRawRefreshToken(double daysToExpire)
     {
         var randomNumber = new byte[64];
         using var rng = RandomNumberGenerator.Create();
         rng.GetBytes(randomNumber);
-        return Convert.ToBase64String(randomNumber);
+        return (Convert.ToBase64String(randomNumber), DateTime.UtcNow.AddDays(daysToExpire));
     }
+
 
     // reset token methods
     public async Task<string> GenerateAndSaveResetTokenAsync(string userId, CancellationToken cancellationToken = default)

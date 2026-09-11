@@ -34,7 +34,7 @@ namespace Application.CQRS.Features.Otp.GenerateOtp
                 user.Email!,
                 result.Value,
                 cancellationToken);
-            return Result.Success(
+            return Result.Success(message:
    "OTP Sent successfully. Please check your email to confirm your account."
 );
         }

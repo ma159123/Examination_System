@@ -20,7 +20,7 @@ namespace Application.CQRS.Features.UserFeature.Commands.CreateUser
             {
                 return Result.Failure<string>(Error.DbError);
             }
-            return Result.Success(userId);
+            return Result.Success<string>(data: userId);
         }
     }
 }
