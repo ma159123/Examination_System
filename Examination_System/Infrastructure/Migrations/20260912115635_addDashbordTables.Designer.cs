@@ -4,6 +4,7 @@ using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260912115635_addDashbordTables")]
+    partial class addDashbordTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -116,9 +119,6 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<int>("QuizCount")
-                        .HasColumnType("int");
-
                     b.Property<int>("Status")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
@@ -142,7 +142,6 @@ namespace Infrastructure.Migrations
                             Id = new Guid("11111111-1111-1111-1111-111111111111"),
                             CreatedAt = new DateTime(2026, 1, 10, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Master ASP.NET Core and Modern Frontend Frameworks",
-                            QuizCount = 0,
                             Status = 1,
                             Title = "Full-Stack Web Development Diploma"
                         },
@@ -151,7 +150,6 @@ namespace Infrastructure.Migrations
                             Id = new Guid("22222222-2222-2222-2222-222222222222"),
                             CreatedAt = new DateTime(2026, 2, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Build Cross-Platform Apps using Flutter",
-                            QuizCount = 0,
                             Status = 0,
                             Title = "Mobile App Development Diploma"
                         });
@@ -449,26 +447,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("ResetTokenRecords");
                 });
 
-            modelBuilder.Entity("Domain.Entites.StudentDiploma", b =>
-                {
-                    b.Property<Guid>("StudentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("DiplomaId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("EnrolledAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("StudentId", "DiplomaId");
-
-                    b.HasIndex("DiplomaId");
-
-                    b.HasIndex("StudentId");
-
-                    b.ToTable("StudentDiplomas", (string)null);
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -655,17 +633,6 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Domain.Entites.StudentDiploma", b =>
-                {
-                    b.HasOne("Domain.Entites.Diploma", "Diploma")
-                        .WithMany()
-                        .HasForeignKey("DiplomaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Diploma");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
