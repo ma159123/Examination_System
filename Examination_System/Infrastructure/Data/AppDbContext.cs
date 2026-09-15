@@ -1,4 +1,5 @@
 ﻿using Domain.Entites;
+using Domain.Entities;
 using Infrastructure.DataSeeding;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -15,9 +16,11 @@ namespace Infrastructure.Data
         public DbSet<ResetTokenRecord> ResetTokenRecords { get; set; }
         public DbSet<RefreshTokenRecord> RefreshTokenRecords { get; set; }
         public DbSet<Diploma> Diplomas { get; set; }
+        public DbSet<StudentDiploma> StudentDiplomas { get; set; }
         public DbSet<Quiz> Quizzes { get; set; }
         public DbSet<Question> Questions { get; set; }
         public DbSet<QuestionOption> QuestionOptions { get; set; }
+        public DbSet<QuizAttempt> QuizAttempts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

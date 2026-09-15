@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Application.CQRS.Features.Student.Diplomas
+namespace Application.CQRS.Features.Student.Diplomas.GetAllDiplomas
 {
     public class GetCatalogDiplomasQueryValidator : AbstractValidator<GetCatalogDiplomasQuery>
     {

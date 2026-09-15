@@ -1,4 +1,5 @@
-﻿using Domain.Enums;
+﻿using Domain.Entities;
+using Domain.Enums;
 
 namespace Domain.Entites
 {
@@ -23,5 +24,6 @@ namespace Domain.Entites
 
         // Navigation Property
         public ICollection<Question> Questions { get; set; } = new List<Question>();
+        public ICollection<QuizAttempt> Attempts { get; set; } = new List<QuizAttempt>();
     }
 }

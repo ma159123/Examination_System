@@ -31,6 +31,11 @@ public record Error(string Code, string Description, int? StatusCode = null)
         "Requested element was not found.",
         StatusCodes.Status404NotFound
     );
+    public static readonly Error Forbidden = new(
+        "Found.Forbidden",
+        "Access to the requested element is forbidden.",
+        StatusCodes.Status403Forbidden
+    );
     public static readonly Error ResendLimitExceeded = new(
           "Auth.ResendLimitExceeded",
                 "Too many OTP requests. You can only request up to 3 OTPs per hour.",

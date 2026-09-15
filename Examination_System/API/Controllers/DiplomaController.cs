@@ -1,4 +1,7 @@
-﻿using Application.CQRS.Features.Student.Diplomas;
+﻿using Application.CQRS.Features.Student.Diplomas.EnrollDiploma;
+using Application.CQRS.Features.Student.Diplomas.GetAllDiplomas;
+using Application.CQRS.Features.Student.Diplomas.GetDiplomaById;
+using Application.CQRS.Features.Student.Quiz.GetDiplomaQuizes;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +17,7 @@ namespace API.Controllers
         {
             _mediator = mediator;
         }
-        [HttpPost("diplomas")]
+        [HttpGet("diplomas")]
         [Authorize]
         public async Task<IActionResult> GetAllCatalogDiplomas(GetCatalogDiplomasQuery query)
         {
@@ -22,5 +25,32 @@ namespace API.Controllers
 
             return Ok(result);
         }
+        [HttpGet("diplomas/{diplomaId}")]
+        [Authorize]
+        public async Task<IActionResult> GetDiplomaById(Guid diplomaId)
+        {
+            var result = await _mediator.Send(new GetDiplomaByIdQuery(diplomaId));
+
+            return Ok(result);
+        }
+
+        [HttpGet("diplomas/{diplomaId}/quizzes")]
+        [Authorize]
+        public async Task<IActionResult> GetDiplomaQuizzes(Guid diplomaId)
+        {
+            var result = await _mediator.Send(new GetDiplomaQuizesQuery(diplomaId));
+
+            return Ok(result);
+        }
+
+        [HttpPost("diplomas/enroll")]
+        [Authorize]
+        public async Task<IActionResult> EnrollDiploma(EnrollDiplomaCommand command)
+        {
+            var result = await _mediator.Send(command);
+
+            return Ok(result);
+        }
+
     }
 }

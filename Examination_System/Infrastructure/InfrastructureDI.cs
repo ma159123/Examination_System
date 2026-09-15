@@ -36,13 +36,17 @@ namespace Infrastructure
             // 2. ثانياً: تسجيل JWT Authentication (لتتغلب إعداداته على الـ Cookie Defaults الخاصة بـ Identity)
             services.AddJwtAuthentication(configuration);
 
+            // Repositories & DbContext Services (Must be Scoped)
             services.AddScoped<IUserRepo, UserRepo>();
+            services.AddScoped<IDiplomaRepo, DiplomaRepo>();
+
+            // Application Services
+            services.AddScoped<ICurrentUserService, CurrentUserService>();
             services.AddScoped<IOtpService, OtpService>();
-            services.AddTransient<IDiplomaRepo, DiplomaRepo>();
-            services.AddTransient<IEmailService, EmailService>();
             services.AddScoped<ITokenGenerator, TokenGenerator>();
 
-            return services;
+            // External Stateless Services (Can be Transient)
+            services.AddTransient<IEmailService, EmailService>(); return services;
         }
 
         private static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
@@ -64,10 +68,10 @@ namespace Infrastructure
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = configuration["Jwt:Issuer"],
-                    ValidAudience = configuration["Jwt:Audience"],
+                    ValidIssuer = configuration["JwtSettings:Issuer"],
+                    ValidAudience = configuration["JwtSettings:Audience"],
                     IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is not configured.")))
+                        Encoding.UTF8.GetBytes(configuration["JwtSettings:Secret"] ?? throw new InvalidOperationException("JWT Key is not configured.")))
                 };
             });
 
