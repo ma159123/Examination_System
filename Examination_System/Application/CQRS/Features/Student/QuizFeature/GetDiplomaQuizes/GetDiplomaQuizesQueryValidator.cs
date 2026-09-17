@@ -1,7 +1,7 @@
 ﻿using Application.CQRS.Features.Student.Diplomas.GetDiplomaById;
 using FluentValidation;
 
-namespace Application.CQRS.Features.Student.Quiz.GetDiplomaQuizes
+namespace Application.CQRS.Features.Student.QuizFeature.GetDiplomaQuizes
 {
     public class GetDiplomaQuizesQueryValidator : AbstractValidator<GetDiplomaByIdQuery>
     {

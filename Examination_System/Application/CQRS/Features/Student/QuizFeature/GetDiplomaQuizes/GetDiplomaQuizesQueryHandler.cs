@@ -5,7 +5,7 @@ using Domain.Common.Errors;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace Application.CQRS.Features.Student.Quiz.GetDiplomaQuizes
+namespace Application.CQRS.Features.Student.QuizFeature.GetDiplomaQuizes
 {
     public class GetDiplomaQuizesQueryHandler : IRequestHandler<GetDiplomaQuizesQuery, Result<List<GetQuizResponse>>>
     {

@@ -1,4 +1,5 @@
 ﻿using Domain.Entites;
+using Domain.Enums;
 
 namespace Domain.Entities
 {
@@ -16,7 +17,7 @@ namespace Domain.Entities
         public int Score { get; set; } = 0;
         public bool IsPassed { get; set; } = false;
 
-
+        public AttemptStatus Status { get; set; } = AttemptStatus.InProgress;
         public DateTime StartedAt { get; set; } = DateTime.UtcNow;
         public DateTime? SubmittedAt { get; set; }
 

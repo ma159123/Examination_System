@@ -44,6 +44,7 @@ namespace Infrastructure
             services.AddScoped<ICurrentUserService, CurrentUserService>();
             services.AddScoped<IOtpService, OtpService>();
             services.AddScoped<ITokenGenerator, TokenGenerator>();
+            services.AddScoped<IQuizRepo, QuizRepo>();
 
             // External Stateless Services (Can be Transient)
             services.AddTransient<IEmailService, EmailService>(); return services;

@@ -1,7 +1,7 @@
 ﻿using Application.CQRS.Features.Student.Diplomas.EnrollDiploma;
 using Application.CQRS.Features.Student.Diplomas.GetAllDiplomas;
 using Application.CQRS.Features.Student.Diplomas.GetDiplomaById;
-using Application.CQRS.Features.Student.Quiz.GetDiplomaQuizes;
+using Application.CQRS.Features.Student.QuizFeature.GetDiplomaQuizes;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

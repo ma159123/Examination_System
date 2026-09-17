@@ -26,6 +26,12 @@ public record Error(string Code, string Description, int? StatusCode = null)
         StatusCodes.Status409Conflict
     );
 
+    public static readonly Error AlreadyQuizAttemptInProgress = new(
+      "Found.AlreadyQuizAttemptInProgress",
+      "A quiz attempt is already in progress.",
+      StatusCodes.Status409Conflict
+  );
+
     public static readonly Error NotFound = new(
         "Found.NotFound",
         "Requested element was not found.",
