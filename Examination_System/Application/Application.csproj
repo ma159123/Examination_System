@@ -19,4 +19,9 @@
     <ProjectReference Include="..\Domain\Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="CQRS\Features\Admin\Dashboard\" />
+    <Folder Include="CQRS\Features\Admin\Quizzes\" />
+  </ItemGroup>
+
 </Project>

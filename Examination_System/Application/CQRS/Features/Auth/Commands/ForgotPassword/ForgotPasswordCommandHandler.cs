@@ -31,7 +31,7 @@ namespace Application.CQRS.Features.Auth.Commands.ForgotPassword
                 return Result.Failure(Error.EmailNotConfirmed);
             }
             //generate reset token and send email logic
-            var resetToken = await _tokenGenerator.GenerateAndSaveResetTokenAsync(user.Id, cancellationToken);
+            var resetToken = await _tokenGenerator.GenerateAndSaveResetTokenAsync(user.Id.ToString(), cancellationToken);
             await _emailService.SendEmailTokenAsync(user.Email, resetToken, cancellationToken);
 
             return Result.Success<string>("Reset token sent successfully.");

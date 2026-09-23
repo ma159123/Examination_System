@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces;
+using Application.Interfaces.Admin;
 using Domain.Entites;
 using Infrastructure.Data;
 using Infrastructure.InterfacesImpl;
@@ -10,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Text;
 
 namespace Infrastructure
@@ -23,13 +25,13 @@ namespace Infrastructure
                 options.UseSqlServer(connectionString));
 
             // 1. أولاً: تسجيل Identity
-            services.AddIdentity<AppUser, IdentityRole>(options =>
+            services.AddIdentity<AppUser, IdentityRole<string>>(options =>
             {
                 options.Password.RequireDigit = true;
                 options.Password.RequireUppercase = true;
                 options.Password.RequiredLength = 8;
                 options.User.RequireUniqueEmail = true;
-            })
+            }).AddRoles<IdentityRole<string>>()
             .AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();
 
@@ -45,6 +47,7 @@ namespace Infrastructure
             services.AddScoped<IOtpService, OtpService>();
             services.AddScoped<ITokenGenerator, TokenGenerator>();
             services.AddScoped<IQuizRepo, QuizRepo>();
+            services.AddScoped<IAdminDiplomaRepo, AdminDiplomaRepo>();
 
             // External Stateless Services (Can be Transient)
             services.AddTransient<IEmailService, EmailService>(); return services;
@@ -72,7 +75,8 @@ namespace Infrastructure
                     ValidIssuer = configuration["JwtSettings:Issuer"],
                     ValidAudience = configuration["JwtSettings:Audience"],
                     IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(configuration["JwtSettings:Secret"] ?? throw new InvalidOperationException("JWT Key is not configured.")))
+                        Encoding.UTF8.GetBytes(configuration["JwtSettings:Secret"] ?? throw new InvalidOperationException("JWT Key is not configured."))),
+                    RoleClaimType = ClaimTypes.Role
                 };
             });
 

@@ -22,7 +22,7 @@ namespace Application.CQRS.Features.Auth.Commands.VerifyOTP
                 return Result.Failure(Error.UserNotFound);
 
             }
-            var result = await _otpService.VerifyOTP(user.Id, request.Otp, cancellationToken);
+            var result = await _otpService.VerifyOTP(user.Id.ToString(), request.Otp, cancellationToken);
             if (result.IsFailure)
             {
                 return Result.Failure(new Error("Invalid OTP", "The provided OTP is invalid or has expired."));

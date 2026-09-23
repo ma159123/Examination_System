@@ -71,8 +71,9 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<int>("Role")
-                        .HasColumnType("int");
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
@@ -203,6 +204,9 @@ namespace Infrastructure.Migrations
                     b.Property<int>("OrderIndex")
                         .HasColumnType("int");
 
+                    b.Property<int>("Points")
+                        .HasColumnType("int");
+
                     b.Property<Guid>("QuizId")
                         .HasColumnType("uniqueidentifier");
 
@@ -223,6 +227,7 @@ namespace Infrastructure.Migrations
                             CreatedAt = new DateTime(2026, 1, 15, 0, 0, 0, 0, DateTimeKind.Utc),
                             Explanation = "The 'try-catch' block is used to catch and handle runtime exceptions.",
                             OrderIndex = 1,
+                            Points = 1,
                             QuizId = new Guid("33333333-3333-3333-3333-333333333333"),
                             Text = "Which keyword is used to handle exceptions in C#?"
                         },
@@ -232,6 +237,7 @@ namespace Infrastructure.Migrations
                             CreatedAt = new DateTime(2026, 1, 15, 0, 0, 0, 0, DateTimeKind.Utc),
                             Explanation = "In C#, class members are private by default if no modifier is specified.",
                             OrderIndex = 2,
+                            Points = 1,
                             QuizId = new Guid("33333333-3333-3333-3333-333333333333"),
                             Text = "What is the default access modifier for members of a class in C#?"
                         });
@@ -508,7 +514,7 @@ namespace Infrastructure.Migrations
                     b.HasIndex("QuizAttemptId", "QuestionId")
                         .IsUnique();
 
-                    b.ToTable("QuestionAnswer");
+                    b.ToTable("QuestionAnswers");
                 });
 
             modelBuilder.Entity("Domain.Entities.QuizAttempt", b =>

@@ -4,14 +4,14 @@ using MediatR;
 
 namespace Application.CQRS.Features.UserFeature.Commands.IsEmailExist
 {
-    public class IsEmailExistQueryHandler : IRequestHandler<IsEmailExistQuery, Result<bool>>
+    public class IsUserExistQueryHandler : IRequestHandler<IsUserExistQuery, Result<bool>>
     {
         private readonly IUserRepo _userRepo;
-        public IsEmailExistQueryHandler(IUserRepo userRepo)
+        public IsUserExistQueryHandler(IUserRepo userRepo)
         {
             _userRepo = userRepo;
         }
-        public async Task<Result<bool>> Handle(IsEmailExistQuery request, CancellationToken cancellationToken)
+        public async Task<Result<bool>> Handle(IsUserExistQuery request, CancellationToken cancellationToken)
         {
             var isUserExist = await _userRepo.FindByEmailAsync(request.Email);
             if (isUserExist != null)

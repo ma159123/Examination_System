@@ -35,18 +35,17 @@ namespace Application.CQRS.Features.Student.QuizFeature.StartQuiz
                 return Result.Failure<StartQuizResponse>(Error.NotFound, "Quiz not found or not published.");
             }
 
-            // 2. الفحص عن محاولة جارية حالياً (In Progress) -> Return 409 Conflict
+            // 2. check if the student has an in-progress attempt for this quiz
             var existingAttempt = await quizRepo.GetInProgressAttempt(request.QuizId, studentId.Value, cancellationToken);
 
             if (existingAttempt != null)
             {
-                // إرجاع خطأ 409 مخصص يحتوي على ID المحاولة لاستئنافها
                 return Result.Failure<StartQuizResponse>(
                   Error.AlreadyQuizAttemptInProgress,
                     "In-progress attempt exists.");
             }
 
-            // 3. التحقق من استنفاد عدد المحاولات المسموحة
+            // 3.check if the student has reached the maximum allowed attempts for this quiz
             var isMaxAttemptReached = await quizRepo.IsMaxAttemptReached((Quiz)quiz, studentId.Value, cancellationToken);
             if (isMaxAttemptReached)
             {

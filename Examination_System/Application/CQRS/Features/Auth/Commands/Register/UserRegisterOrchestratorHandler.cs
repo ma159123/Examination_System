@@ -26,48 +26,69 @@ namespace Application.CQRS.Features.Auth.Commands.Register
             {
                 return Result.Failure<UserRegistrationResponseDto>(Error.AlreadyEmailExist);
             }
-            //create user
-            var createUserResult = await _mediator.Send(new AddUserCommand
-            (
-                  request.Email,
-                  request.Password,
-                  request.FullName,
-                  UserRoles.User.ToString()
 
-            ), cancellationToken);
+            string userId;
 
-            if (createUserResult.IsFailure)
+            // 1. Transaction تقتصر فقط على الداتا بيز (Create User + Add Role)
+            using (var transaction = await _userRepo.BeginTransactionAsync(cancellationToken))
             {
-                return Result.Failure<UserRegistrationResponseDto>(error: createUserResult.Error);
+                try
+                {
+                    var userResult = await _mediator.Send(new AddUserCommand
+                    (
+                        request.Email,
+                        request.Password,
+                        request.FullName,
+                        UserRoles.User
+                    ), cancellationToken);
+
+                    if (userResult.IsFailure)
+                    {
+                        await transaction.RollbackAsync(cancellationToken);
+                        return Result.Failure<UserRegistrationResponseDto>(error: userResult.Error);
+                    }
+
+                    var roleName = UserRoles.User.ToString();
+                    var roleResult = await _userRepo.AddToRoleAsync(userResult.Value, roleName);
+
+                    if (!roleResult.Succeeded)
+                    {
+                        await transaction.RollbackAsync(cancellationToken);
+                        return Result.Failure<UserRegistrationResponseDto>(
+                            new Error("Auth.RoleAssignmentFailed", "Failed to assign role to user.", 400));
+                    }
+
+                    await transaction.CommitAsync(cancellationToken);
+                    userId = userResult.Value.Id.ToString();
+                }
+                catch (Exception)
+                {
+                    await transaction.RollbackAsync(cancellationToken);
+                    throw;
+                }
             }
 
-            var userId = createUserResult.Value;
-
-            //send email confirmation
-            var sendEmailConfirmationResult = await _mediator.Send(new GenerateAndSendOtpCommand
+            // 2. send OTP email 
+            var sendEmailResult = await _mediator.Send(new GenerateAndSendOtpCommand
             (
-                  userId,
-                  request.Email
+                userId,
+                request.Email
             ), cancellationToken);
-
-            if (sendEmailConfirmationResult.IsFailure)
-            {
-                return Result.Failure<UserRegistrationResponseDto>(sendEmailConfirmationResult.Error);
-            }
 
             var response = new UserRegistrationResponseDto
             (
-                 userId,
-                 request.Email,
-                 request.FullName,
-                 UserStatus.Pending.ToString(),
-                 DateTime.UtcNow
+                userId,
+                request.Email,
+                request.FullName,
+                UserStatus.Pending.ToString(),
+                DateTime.UtcNow
             );
 
-            return Result.Success(
-                    data: response,
-                    message: "Registration successful. Please verify your email."
-                );
+            string responseMessage = sendEmailResult.IsSuccess
+                ? "Registration successful. Please verify your email."
+                : "Registration successful, but failed to send verification email. Please use resend OTP option.";
+
+            return Result.Success(data: response, message: responseMessage);
         }
     }
 }

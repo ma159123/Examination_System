@@ -20,5 +20,12 @@ namespace Application.Interfaces
         public QuizAttempt CreateQuizAttemptAsync(Quiz quiz, Guid studentId, CancellationToken cancellationToken);
         public List<QuestionDto> ShuffleQuestions(List<Question> questions);
         public Task SaveChangesAsync(CancellationToken cancellationToken);
+        Task<QuizAttempt?> GetAttemptWithDetailsAsync(Guid attemptId, CancellationToken cancellationToken = default);
+        public Task<(DateTime StartedAt, int DurationMinutes)?> GetAttemptTimeDetailsAsync(
+           Guid attemptId,
+           CancellationToken cancellationToken = default);
+        Task UpsertQuestionAnswerAsync(Guid attemptId, Guid questionId, Guid selectedOptionId, CancellationToken cancellationToken = default);
+        Task AutoSubmitAttemptAsync(QuizAttempt attempt, CancellationToken cancellationToken = default);
+        Task SubmitAttempt(QuizAttempt attempt, int score, bool passed, CancellationToken cancellationToken = default);
     }
 }

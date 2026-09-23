@@ -1,4 +1,5 @@
-﻿using Application.CQRS.Features.Student.Diplomas.EnrollDiploma;
+﻿using Application.CQRS.Features.Admin.AdminDiploma.Commands.CreateDiploma;
+using Application.CQRS.Features.Student.Diplomas.EnrollDiploma;
 using Application.CQRS.Features.Student.Diplomas.GetAllDiplomas;
 using Application.CQRS.Features.Student.Diplomas.GetDiplomaById;
 using Application.CQRS.Features.Student.QuizFeature.GetDiplomaQuizes;
@@ -50,6 +51,30 @@ namespace API.Controllers
             var result = await _mediator.Send(command);
 
             return Ok(result);
+        }
+        //-------------------admin -------------------//
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> CreateDiploma([FromBody] CreateDiplomaCommand command)
+        {
+            var result = await _mediator.Send(command);
+
+            if (!result.IsSuccess)
+            {
+                if (result.Error.Code == "ValidationError" || result.Error.Code == "422")
+                {
+                    return StatusCode(StatusCodes.Status422UnprocessableEntity, new
+                    {
+                        title = "Validation Failed",
+                        status = 422,
+                        errors = result.Error.Description
+                    });
+                }
+
+                return BadRequest(result.Error);
+            }
+
+            return StatusCode(StatusCodes.Status201Created, result.Value);
         }
 
     }

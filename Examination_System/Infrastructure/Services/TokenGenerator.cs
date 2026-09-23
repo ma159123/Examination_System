@@ -70,7 +70,7 @@ public class TokenGenerator : ITokenGenerator
 
         var refreshTokenRecord = new RefreshTokenRecord
         {
-            UserId = user.Id,
+            UserId = user.Id.ToString(),
             HashedToken = hashedRefreshToken,
             ExpiresAt = refreshTokenExpiry,
             IsRevoked = false,

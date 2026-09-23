@@ -38,7 +38,7 @@ namespace Application.CQRS.Features.Auth.Commands.ResendOTP
             //send email with otp
             return await _mediator.Send(new GenerateAndSendOtpCommand
               (
-                   user.Id,
+                   user.Id.ToString(),
                    user.Email
               ), cancellationToken);
         }

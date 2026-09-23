@@ -3,4 +3,4 @@ using MediatR;
 
 namespace Application.CQRS.Features.UserFeature.Commands.IsEmailExist;
 
-public record IsEmailExistQuery(string Email) : IRequest<Result<bool>>;
+public record IsUserExistQuery(string Email) : IRequest<Result<bool>>;

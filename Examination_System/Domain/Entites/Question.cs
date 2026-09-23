@@ -12,6 +12,7 @@
         public string? Explanation { get; set; }           // Revealed only post-submission
         public int OrderIndex { get; set; }                 // Controls base display order
 
+        public int Points { get; set; } = 1;                // Default to 1 point
         // Audit & Soft Delete
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? DeletedAt { get; set; }            // Soft-delete

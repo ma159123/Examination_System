@@ -56,7 +56,7 @@ namespace Application.CQRS.Features.Auth.Commands.Login
 
             // TODO: Save RefreshToken in DB/Redis for rotation support
 
-            var response = new LoginResponse(user.Id, roles.FirstOrDefault(), accessToken, accessTokenExpiry, refreshToken, refreshTokenExpiry);
+            var response = new LoginResponse(user.Id.ToString(), roles.FirstOrDefault(), accessToken, accessTokenExpiry, refreshToken, refreshTokenExpiry);
             return Result.Success(response);
         }
     }

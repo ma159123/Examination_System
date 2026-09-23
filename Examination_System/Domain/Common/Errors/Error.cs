@@ -42,6 +42,12 @@ public record Error(string Code, string Description, int? StatusCode = null)
         "Access to the requested element is forbidden.",
         StatusCodes.Status403Forbidden
     );
+
+    public static readonly Error Conflict = new(
+       "Found.Conflict",
+       "A conflict occurred.",
+       StatusCodes.Status409Conflict
+   );
     public static readonly Error ResendLimitExceeded = new(
           "Auth.ResendLimitExceeded",
                 "Too many OTP requests. You can only request up to 3 OTPs per hour.",

@@ -27,7 +27,7 @@ namespace Application.CQRS.Features.Otp.GenerateOtp
                 return Result.Failure(Error.NotFound);
             }
             // 4 - generate otp 
-            var result = await _otpService.GenerateAndStoreOtpAsync(user.Id, cancellationToken);
+            var result = await _otpService.GenerateAndStoreOtpAsync(user.Id.ToString(), cancellationToken);
 
             // 5. send email with otp
             await _emailService.SendOtpEmailAsync(

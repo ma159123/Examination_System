@@ -6,6 +6,7 @@ using Domain.Enums;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Infrastructure.InterfacesImpl
 {
@@ -24,7 +25,7 @@ namespace Infrastructure.InterfacesImpl
             return await _userManager.FindByEmailAsync(email);
         }
 
-        public async Task<string?> CreatePendingUserAsync(string email, string password, string fullName)
+        public async Task<AppUser?> CreatePendingUserAsync(string email, string password, string fullName)
         {
 
             var user = new AppUser
@@ -33,18 +34,18 @@ namespace Infrastructure.InterfacesImpl
                 Email = email,
                 FullName = fullName,
                 Status = UserStatus.Pending,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                Role = UserRoles.User
             };
 
             var result = await _userManager.CreateAsync(user, password);
-
             if (!result.Succeeded)
             {
                 var errors = string.Join(", ", result.Errors.Select(e => e.Description));
                 throw new Exception($"Failed to create user: {errors}");
             }
 
-            return user.Id;
+            return user;
         }
 
         public async Task<bool?> CheckPasswordAsync(AppUser user, string password)
@@ -120,6 +121,16 @@ namespace Infrastructure.InterfacesImpl
         public Task<bool> isEmailExistAsync(string email)
         {
             return _userManager.Users.AnyAsync(u => u.Email == email);
+        }
+
+        public Task<IdentityResult> AddToRoleAsync(AppUser user, string roleName)
+        {
+            return _userManager.AddToRoleAsync(user, roleName);
+        }
+
+        public async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
+        {
+            return await _dbContext.Database.BeginTransactionAsync(cancellationToken);
         }
     }
 }

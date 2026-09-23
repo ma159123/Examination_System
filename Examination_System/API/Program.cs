@@ -7,7 +7,7 @@ namespace Examination_System
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +23,16 @@ namespace Examination_System
 
             var app = builder.Build();
 
+            //using (var scope = app.Services.CreateScope())
+            //{
+            //    var services = scope.ServiceProvider;
+            //    var roleManager = services.GetRequiredService<RoleManager<IdentityRole<string>>>();
+            //    var userManager = services.GetRequiredService<UserManager<AppUser>>();
+
+            //    string adminEmail = "mae562190@gmail.cpm";
+
+            //    await IdentitySeeder.SeedRolesAndAdminAsync(roleManager, userManager, adminEmail);
+            //}
 
             if (app.Environment.IsDevelopment())
             {
