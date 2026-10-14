@@ -1,11 +1,13 @@
-﻿using Application.CQRS.Features.Otp.GenerateOtp;
-using Application.CQRS.Features.UserFeature.Commands.CreateUser;
+﻿using Application.CQRS.Features.UserFeature.Commands.CreateUser;
 using Application.DTOs;
+using Application.Events.UserRegisteredEvent;
 using Application.Interfaces;
 using Domain.Common;
 using Domain.Common.Errors;
+using Domain.Entites;
 using Domain.Enums;
 using MediatR;
+using System.Text.Json;
 
 namespace Application.CQRS.Features.Auth.Commands.Register
 {
@@ -13,14 +15,20 @@ namespace Application.CQRS.Features.Auth.Commands.Register
     {
         private readonly IMediator _mediator;
         private readonly IUserRepo _userRepo;
-        public UserRegisterOrchestratorHandler(IMediator mediator, IUserRepo userRepo)
+        private readonly IOutboxRepository _outboxRepo;
+
+        public UserRegisterOrchestratorHandler(
+            IMediator mediator,
+            IUserRepo userRepo,
+            IOutboxRepository outboxRepo)
         {
             _mediator = mediator;
             _userRepo = userRepo;
+            _outboxRepo = outboxRepo;
         }
+
         public async Task<Result<UserRegistrationResponseDto>> Handle(UserRegisterCommand request, CancellationToken cancellationToken)
         {
-
             var isExist = await _userRepo.isEmailExistAsync(request.Email);
             if (isExist)
             {
@@ -29,11 +37,12 @@ namespace Application.CQRS.Features.Auth.Commands.Register
 
             string userId;
 
-            // 1. Transaction تقتصر فقط على الداتا بيز (Create User + Add Role)
+            // 1. Transaction  (Create User + Add Role + Save Outbox Message) 
             using (var transaction = await _userRepo.BeginTransactionAsync(cancellationToken))
             {
                 try
                 {
+                    // create user
                     var userResult = await _mediator.Send(new AddUserCommand
                     (
                         request.Email,
@@ -48,6 +57,9 @@ namespace Application.CQRS.Features.Auth.Commands.Register
                         return Result.Failure<UserRegistrationResponseDto>(error: userResult.Error);
                     }
 
+                    userId = userResult.Value.Id.ToString();
+
+                    //  Assign role to user
                     var roleName = UserRoles.User.ToString();
                     var roleResult = await _userRepo.AddToRoleAsync(userResult.Value, roleName);
 
@@ -58,8 +70,22 @@ namespace Application.CQRS.Features.Auth.Commands.Register
                             new Error("Auth.RoleAssignmentFailed", "Failed to assign role to user.", 400));
                     }
 
+                    // add outbox message for generating OTP
+                    var domainEvent = new UserRegisteredEvent(userId, request.Email);
+
+                    var outboxMessage = new OutboxMessage
+                    {
+                        Id = Guid.NewGuid(),
+                        Type = domainEvent.GetType().AssemblyQualifiedName!,
+                        Payload = JsonSerializer.Serialize(domainEvent),
+                        CreatedAt = DateTime.UtcNow
+                    };
+
+                    await _outboxRepo.AddAsync(outboxMessage, cancellationToken);
+                    await _outboxRepo.SaveChangesAsync(cancellationToken);
+
+                    // 
                     await transaction.CommitAsync(cancellationToken);
-                    userId = userResult.Value.Id.ToString();
                 }
                 catch (Exception)
                 {
@@ -68,12 +94,6 @@ namespace Application.CQRS.Features.Auth.Commands.Register
                 }
             }
 
-            // 2. send OTP email 
-            var sendEmailResult = await _mediator.Send(new GenerateAndSendOtpCommand
-            (
-                userId,
-                request.Email
-            ), cancellationToken);
 
             var response = new UserRegistrationResponseDto
             (
@@ -84,11 +104,10 @@ namespace Application.CQRS.Features.Auth.Commands.Register
                 DateTime.UtcNow
             );
 
-            string responseMessage = sendEmailResult.IsSuccess
-                ? "Registration successful. Please verify your email."
-                : "Registration successful, but failed to send verification email. Please use resend OTP option.";
-
-            return Result.Success(data: response, message: responseMessage);
+            return Result.Success(
+                data: response,
+                message: "Registration successful. Verification code is being dispatched."
+            );
         }
     }
 }

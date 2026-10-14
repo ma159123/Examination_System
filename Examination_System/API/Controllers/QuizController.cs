@@ -1,9 +1,10 @@
-﻿using Application.CQRS.Features.Student.QuizFeature.AnswerQuestion;
-using Application.CQRS.Features.Student.QuizFeature.AttemptResult;
-using Application.CQRS.Features.Student.QuizFeature.QuizAttemptHistory;
-using Application.CQRS.Features.Student.QuizFeature.StartQuiz;
-using Application.CQRS.Features.Student.QuizFeature.SubmitQuiz;
-using Application.CQRS.Features.Student.QuizFeature.Timer;
+﻿using Application.CQRS.Features.Student.QuizFeature.Commands.AnswerQuestion;
+using Application.CQRS.Features.Student.QuizFeature.Commands.CreateQuiz;
+using Application.CQRS.Features.Student.QuizFeature.Commands.StartQuiz;
+using Application.CQRS.Features.Student.QuizFeature.Commands.SubmitQuiz;
+using Application.CQRS.Features.Student.QuizFeature.Queries.AttemptResult;
+using Application.CQRS.Features.Student.QuizFeature.Queries.QuizAttemptHistory;
+using Application.CQRS.Features.Student.QuizFeature.Queries.Timer;
 using Domain.Common.Errors;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -107,6 +108,16 @@ namespace API.Controllers
             var result = await _mediator.Send(new AttemptResultQuery(attemptId));
 
             return Ok(result.Value);
+        }
+
+        [HttpPost("api/admin/quizzes")]
+        [Authorize]
+        public async Task<IActionResult> CreateQuiz(
+       CreateQuizCommand command)
+        {
+            var result = await _mediator.Send(command);
+
+            return Created("", result.Value);
         }
 
     }

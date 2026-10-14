@@ -1,8 +1,8 @@
-﻿using Application.CQRS.Features.Admin.AdminDiploma.Commands.CreateDiploma;
-using Application.CQRS.Features.Student.Diplomas.EnrollDiploma;
-using Application.CQRS.Features.Student.Diplomas.GetAllDiplomas;
-using Application.CQRS.Features.Student.Diplomas.GetDiplomaById;
-using Application.CQRS.Features.Student.QuizFeature.GetDiplomaQuizes;
+﻿using Application.CQRS.Features.Student.Diplomas.Commands.CreateDiploma;
+using Application.CQRS.Features.Student.Diplomas.Commands.EnrollDiploma;
+using Application.CQRS.Features.Student.Diplomas.Queries.GetAllDiplomas;
+using Application.CQRS.Features.Student.Diplomas.Queries.GetDiplomaById;
+using Application.CQRS.Features.Student.QuizFeature.Queries.GetDiplomaQuizes;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -53,9 +53,33 @@ namespace API.Controllers
             return Ok(result);
         }
         //-------------------admin -------------------//
-        [HttpPost]
+        [HttpPost("admin/diplomas")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateDiploma([FromBody] CreateDiplomaCommand command)
+        {
+            var result = await _mediator.Send(command);
+
+            if (!result.IsSuccess)
+            {
+                if (result.Error.Code == "ValidationError" || result.Error.Code == "422")
+                {
+                    return StatusCode(StatusCodes.Status422UnprocessableEntity, new
+                    {
+                        title = "Validation Failed",
+                        status = 422,
+                        errors = result.Error.Description
+                    });
+                }
+
+                return BadRequest(result.Error);
+            }
+
+            return StatusCode(StatusCodes.Status201Created, result.Value);
+        }
+
+        [HttpPut("admin/diplomas")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateDiploma([FromBody] CreateDiplomaCommand command)
         {
             var result = await _mediator.Send(command);
 

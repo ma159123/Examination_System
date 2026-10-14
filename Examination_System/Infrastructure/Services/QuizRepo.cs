@@ -242,4 +242,10 @@ public class QuizRepo : IQuizRepo
         _context.Entry(attempt).State = EntityState.Modified;
         return _context.SaveChangesAsync(cancellationToken);
     }
+
+    //-----------------admin-----------//
+    public async Task AddAsync(Quiz quiz, CancellationToken cancellationToken = default)
+    {
+        await _context.Quizzes.AddAsync(quiz, cancellationToken);
+    }
 }

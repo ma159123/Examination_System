@@ -27,5 +27,8 @@ namespace Application.Interfaces
         Task UpsertQuestionAnswerAsync(Guid attemptId, Guid questionId, Guid selectedOptionId, CancellationToken cancellationToken = default);
         Task AutoSubmitAttemptAsync(QuizAttempt attempt, CancellationToken cancellationToken = default);
         Task SubmitAttempt(QuizAttempt attempt, int score, bool passed, CancellationToken cancellationToken = default);
+
+        //-----------------admin-----------//
+        Task AddAsync(Quiz quiz, CancellationToken cancellationToken = default);
     }
 }

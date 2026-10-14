@@ -1,5 +1,4 @@
 ﻿using Application.Interfaces;
-using Application.Interfaces.Admin;
 using Domain.Entites;
 using Infrastructure.Data;
 using Infrastructure.InterfacesImpl;
@@ -47,8 +46,8 @@ namespace Infrastructure
             services.AddScoped<IOtpService, OtpService>();
             services.AddScoped<ITokenGenerator, TokenGenerator>();
             services.AddScoped<IQuizRepo, QuizRepo>();
-            services.AddScoped<IAdminDiplomaRepo, AdminDiplomaRepo>();
-
+            services.AddScoped<IOutboxRepository, OutboxRepository>();
+            services.AddHostedService<OutboxProcessorBackgroundService>();
             // External Stateless Services (Can be Transient)
             services.AddTransient<IEmailService, EmailService>(); return services;
         }

@@ -111,5 +111,33 @@ namespace Infrastructure.Services
 
             return diploma != null;
         }
+
+        //------------------admin------------------//
+        public async Task CreateDiplomaAsync(Diploma diploma, CancellationToken cancellationToken = default)
+        {
+            await _context.Diplomas.AddAsync(diploma, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task UpdateDiplomaAsync(Diploma diploma, CancellationToken cancellationToken = default)
+        {
+            _context.Diplomas.Update(diploma);
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
+        //public Task DeleteDiplomaAsync(Diploma diploma, CancellationToken cancellationToken = default)
+        //{
+        //    _context.Update(diploma);
+        //    return _context.SaveChangesAsync(cancellationToken);
+
+        //}
+
+        public Task<bool> IsDiplomaEnrolledAsync(Guid diplomaId, CancellationToken cancellationToken = default)
+        {
+            _context.StudentDiplomas
+                  .AsNoTracking()
+                  .AnyAsync(sd => sd.DiplomaId == diplomaId, cancellationToken);
+            return Task.FromResult(true);
+        }
     }
 }

@@ -30,6 +30,7 @@ namespace Infrastructure.InterfacesImpl
 
             var user = new AppUser
             {
+                Id = Guid.NewGuid().ToString(),
                 UserName = email,
                 Email = email,
                 FullName = fullName,

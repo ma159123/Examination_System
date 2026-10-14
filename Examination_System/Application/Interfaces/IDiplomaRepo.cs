@@ -16,5 +16,11 @@ namespace Application.Interfaces
 
         StudentDiploma? EnrollDiploma(Guid diplomaId, Guid studentId);
         int GetTotalDiplomasCount();
+
+        //------------------admin------------------//
+        Task CreateDiplomaAsync(Diploma diploma, CancellationToken cancellationToken = default);
+        Task UpdateDiplomaAsync(Diploma diploma, CancellationToken cancellationToken = default);
+        //Task<bool> DeleteDiplomaAsync(Diploma diploma, CancellationToken cancellationToken = default);
+        Task<bool> IsDiplomaEnrolledAsync(Guid diplomaId, CancellationToken cancellationToken = default);
     }
 }

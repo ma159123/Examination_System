@@ -23,6 +23,8 @@ namespace Infrastructure.Data
         public DbSet<QuestionOption> QuestionOptions { get; set; }
         public DbSet<QuizAttempt> QuizAttempts { get; set; }
         public DbSet<QuestionAnswer> QuestionAnswers { get; set; }
+
+        public DbSet<OutboxMessage> OutboxMessages { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
